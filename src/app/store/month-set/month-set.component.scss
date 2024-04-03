@@ -1,0 +1,38 @@
+
+
+$table-width:350px;
+.during-bg{
+    background: #006fa3;
+    color: #fff;
+}
+.during-item{
+  /*  width: 60px;*/
+    display: inline-block;
+}
+.btn-success{ margin-bottom: 15px }
+.fas{ 
+    font-size: 22px;
+    cursor: pointer;
+}
+.fa-pen-square{color:#004cff}
+.fa-window-close{color:red;}
+.switch-tool{
+    width:$table-width;
+    margin: auto;
+}
+.during-set-table{
+    width: $table-width;
+    margin: auto;
+    text-align: center;
+}
+.switch-month{
+    position: relative;
+    top: -4px;
+    left: 10px;
+}
+
+::ng-deep .calendar-input > span > input[type="text"]{
+    max-width:110px;
+}
+
+

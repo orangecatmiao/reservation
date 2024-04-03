@@ -1,0 +1,196 @@
+.ui-widget.ui-widget-content{
+  font-size: 1em !important;
+}
+
+.bg-date{
+  width:14.285%;
+  background: #c2e4fd
+}
+.bg-holiday1{
+  width:14.285%;
+  background:#85f0b6 ;
+}
+.bg-holiday2{
+  width:14.285%;
+  background:#ffcccc;
+}
+
+.fa-check-square{
+  padding-left: 8px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.fa-check-square{
+  color:#2473b8;
+}
+
+.fa-window-close{
+  color: #ff3939;
+  padding-left: 8px;
+  cursor: pointer;
+  font-size: 18px;
+}
+.fa-plus-square{
+  color: #67a0e8;
+  cursor: pointer;
+  font-size: 18px;
+  float:right;
+  margin-right: 3px;
+}
+.fa-file-signature{
+  color: #4182d6;
+  cursor: pointer;
+  font-size: 18px;
+  float:right;
+  margin-right: 3px;
+}
+
+.setting-list{
+  text-align: right;
+  padding-right: 8px;
+}
+.setting-item{
+  margin-top: 5px;
+  text-align: left;
+}
+
+.day-tool{
+  float:left;
+  width:100%;
+  border: 1px dashed #e2dede; 
+  background: #ececec;
+  padding: 5px;
+}
+.add-frame{
+  text-align:center; 
+  display:inline-block; 
+  width:100%; 
+  margin-top:5px
+}
+
+
+.select-div{
+  margin-bottom:15px;
+  display:inline-block;
+  width:100%;
+  text-align: center
+}
+.select-month{
+  width:120px;
+  margin:15px;
+  position:relative;
+  top:2px;
+}
+
+.ui-datepicker-calendar {
+  display: none !important;
+}
+.time-field{width:33px;}
+
+
+.order-list-modal {
+  max-width: 1150px;
+  margin: 1.75rem auto;
+}
+
+.table td, .table th {
+  padding: 0.25rem;
+}
+/*======= RWD 改版後 增加======= */
+.RWD-td{
+  height:180px;
+}
+
+.screen-computer{
+  display: inline-block;
+}
+.screen-mobile{
+  display: none;
+}  
+
+.fa-clock{
+  font-size: 1.5em;
+    margin-top: 5px;
+    display: block;
+    cursor: pointer;
+}
+
+.margin100{
+  margin-bottom: 100px;
+}
+
+.modal-body{
+  max-height: 550px;
+  overflow: auto;
+}
+
+@media screen  and (max-width:1200px){
+  .order-list-modal {
+      width: 90%;
+      margin: auto;
+  }
+ .order-list-modal .modal-body{
+      max-height: 500px;
+      overflow: auto;
+  }
+}
+
+
+
+
+@media screen  and (max-width:1157px){
+  .RWD-td{
+    height:160px;
+    font-size: .85em;;
+  } 
+  .table td, .table th{
+    padding: 0;
+  }
+  .fa-window-close{
+    padding-left: 3px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .order-list-modal .modal-body{
+    max-height: 400px;
+    overflow: auto;
+  }
+}
+
+@media screen  and (max-width:861px){
+  .screen-computer{
+    display: none;
+  }
+  
+  .screen-mobile{
+      display: inline-block;
+  }
+
+  .mobile-time-list{
+    text-align: center;
+    border: 1px dashed #ccc;
+    margin-top: 10px;
+    padding: 10px;   
+  }
+ 
+  .RWD-td{
+      height:initial;
+  } 
+  .fa-plus-square,.fa-file-signature{
+    width: 100%;
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
+}
+
+@media screen  and (max-width:520px){
+  .day-title{
+      display: block;
+      text-align: center;
+      margin: 3px 0;
+  }
+}
+
+

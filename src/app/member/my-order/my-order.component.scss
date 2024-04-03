@@ -1,0 +1,64 @@
+.page-tool{
+    margin: 0 15px;
+}
+
+.title-th{
+    width:110px;
+}
+
+.fas{
+    position: relative;
+    color:red;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.fa-sort-up{
+   top: 4px;
+}
+
+.fa-sort-down{
+    top: -4px;
+}
+
+.select-div{
+    text-align: center;
+    margin: 8px;
+}
+
+
+.search-select{
+    display: inline-block;
+    width: 90px;
+    margin-right: 3px;
+}
+
+.choosed-item{
+    background-color:#bbc1ff ;
+}
+
+
+.screen-computer{
+    display: table;
+}
+.screen-mobile{
+    display: none;
+}   
+
+@media screen  and (max-width:1000px){
+ 
+    .screen-computer{
+        display: none;
+    }
+    .screen-mobile{
+        display: table;
+    }   
+   
+}
+
+
+@media screen  and (max-width:500px){
+ 
+   th,td{ font-size: 12px;}
+   
+}

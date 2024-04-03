@@ -1,0 +1,215 @@
+
+
+        
+        <div class="row">
+            <div class="col-xs-12 col-md-2" style="text-align:center;padding:8px;border:1px dashed #b1b1b1">
+                <div style="text-align: center;">預約時段</div>
+                <div *ngFor="let s_item of searchItem.value.s_list" style="padding:3px 0">
+                    <i class="fas fa-clock"></i>
+                    {{s_item.start }}~{{s_item.end}}
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-10" style="padding:8px;"><!--order-list-frame-->
+                <div style="text-align:center">
+                    <button class="btn btn-primary" (click)="searchItem.value.is_add_order=true" [disabled]="searchItem.value.is_add_order==true" style="float:left;margin-bottom:10px;">
+                        <i class="fas fa-plus-circle"></i> 新增
+                    </button>
+                    客戶約定時間
+                </div>
+              <!--=================  預約列表 Table  =======================-->
+                <div *ngIf="searchItem.value.order_list!=null && searchItem.value.order_list.length==0" style="padding:50px;text-align: center">
+                    <h4 style="color: #59ad7f;font-weight: 900;">今日沒有客戶預約</h4>
+                </div>
+                <table *ngIf="searchItem.value.order_list!=null && searchItem.value.order_list.length>0" class="table table-bordered th-center" style="width:100%">
+                    <tr>
+                            <th class="bg-1">客戶</th>
+                            <th class="bg-1">時間</th>
+                            <th class="bg-1 screen-computer">分鐘</th>
+                            <th class="bg-1">價格</th>
+                            <th class="bg-1 screen-computer">付款</th>
+                            <th class="bg-1 screen-computer">建立</th>
+                            <th class="bg-1">修改</th>
+                    </tr>
+                    <tr *ngFor="let sorder of searchItem.value.order_list" [ngClass]="(sorder.is_item_edit==true)?['bg-edit']:['bgg']">
+                        <td>{{ sorder.order_name }}</td>
+                        <td style="text-align:center">{{ sorder.start }}~{{ sorder.end }}</td>
+                        <td style="text-align:center" class="screen-computer">{{ sorder.during }}</td>
+                        <td style="text-align:center">{{ sorder.price }}</td>
+                        <td style="text-align:center" class="screen-computer">
+                            <i *ngIf="sorder.is_pay==1" class="fas fa-check-circle" style="color:#1bd244"></i>
+                            <i *ngIf="sorder.is_pay!=1" class="fas fa-check-circle" style="color:#e0e0e0"></i>
+                        </td>
+                        <td style="text-align:center;font-size:10px;" class="screen-computer">{{ sorder.created }}</td>
+                        <td style="text-align:center">
+                            <i class="fas fa-edit" (click)="showOrderEdit(sorder, searchItem)"></i>
+                            <i class="fas fa-trash-alt" (click)="goDeleteOrderItem(sorder, searchItem)" style="margin-left:5px"></i>
+                            <i class="fas fa-info-circle" (click)="showOrderInfo(sorder, searchItem) " title="詳細資訊" style="margin-left:5px"></i>
+                        </td>
+                    </tr>
+                </table>
+        
+        
+                <!--=================  新增Table  ===========================-->
+                <table *ngIf="searchItem.value.is_add_order==true" class="table table-bordered th-center">
+                    <tr>
+                        <th class="bg2" colspan="10">
+                            <i class="fas fa-plus-circle"></i><span style="margin-left:5px">新增訂單</span>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="bg2" style="width:110px;">預約時間</th>
+                        <td>
+                            <input type="text" [(ngModel)]="searchItem.value.add_order_obj.s_hour" 
+                            class="time-field form-control" placeholder="時" maxlength="2" title="24小時制" (blur)="calculateMinute()">:
+                            <input type="text" [(ngModel)]="searchItem.value.add_order_obj.s_min" 
+                            class="time-field form-control" placeholder="分"  maxlength="2" title="24小時制" (blur)="calculateMinute()">
+                            ~
+                           {{ searchItem.value.add_order_obj.e_hour }}: {{ searchItem.value.add_order_obj.e_min }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg2">分鐘數</th>
+                        <td>
+                            <input type="text" [(ngModel)]="searchItem.value.add_order_obj.during" 
+                            class="form-control" placeholder="分鐘數" title="預約分鐘數" (blur)="calculateMinute()" style="width:70px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg2">價格</th>
+                        <td>
+                            <input type="text" [(ngModel)]="searchItem.value.add_order_obj.price" 
+                            class="form-control" placeholder="價格" title="價格" style="width:90px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg2">付款</th>
+                        <td>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" name="isonline" [(ngModel)]="searchItem.value.add_order_obj.is_pay" value="1" id="online1">
+                                <label class="form-check-label" for="online1" >已付</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg2">修改</th>
+                        <td>
+                            <button class="btn btn-sm btn-light" (click)="searchItem.value.is_add_order=false" style="margin-right: 8px;">取消</button>
+                            <button class="btn btn-sm btn-success" (click)="checkAddOrder(searchItem)">確定</button>
+                        </td>
+                    </tr>
+                </table>
+        
+        
+        
+                <!--=================  修改Table  ===========================-->
+                <table *ngIf="searchItem.value.is_edit==true" class="table table-bordered th-center">
+                    <tr>
+                        <th class="bg-edit" colspan="10">
+                            <i class="fas fa-edit"></i><span style="margin-left:5px">修改訂單</span>
+                        </th>
+                    </tr>      
+                    <tr>
+                        <th class="bg-edit" style="width:110px;">客戶</th>
+                        <td>
+                            {{ searchItem.value.edit_obj.order_name }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit">時間</th>
+                        <td>
+                            <input type="text" [(ngModel)]="searchItem.value.edit_obj.s_hour" class="time-field form-control" placeholder="時">:
+                            <input type="text" [(ngModel)]="searchItem.value.edit_obj.s_min" class="time-field form-control" placeholder="分">
+                            ~
+                            <input type="text" [(ngModel)]="searchItem.value.edit_obj.e_hour" class="time-field form-control" placeholder="時">:
+                            <input type="text" [(ngModel)]="searchItem.value.edit_obj.e_min" class="time-field form-control" placeholder="分">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit">分鐘</th>
+                        <td><input type="text" [(ngModel)]="searchItem.value.edit_obj.during" class="form-control" placeholder="分鐘數" style="width:70px"></td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit">價格</th>
+                        <td><input type="text" [(ngModel)]="searchItem.value.edit_obj.price" class="form-control" placeholder="價格" style="width:90px"></td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit">付款</th>
+                        <td>
+                            <span class="form-group form-check" style="padding-left:30px;padding-right: 10px; ">
+                                <input type="radio" class="form-check-input"  name="isonline" [(ngModel)]="searchItem.value.edit_obj.is_pay" [value]="1" id="online1">
+                                <label class="form-check-label" for="online1" [ngStyle]="(searchItem.value.edit_obj.is_pay==1)?{'color':colorObj.on_color}:null">已付</label>
+                            </span>
+                            <span class="form-group form-check">
+                                <input type="radio" class="form-check-input"  name="isonline" [(ngModel)]="searchItem.value.edit_obj.is_pay" [value]="0" id="online2">
+                                <label class="form-check-label" for="online2" [ngStyle]="(searchItem.value.edit_obj.is_pay==0)?{'color':colorObj.on_color}:null">未付</label>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit">修改</th>
+                        <td>
+                            <button class="btn btn-sm btn-light" (click)="cancelOederEdit(searchItem)" style="margin-right: 8px;">取消</button>
+                            <button class="btn btn-sm btn-success" (click)="checkEditOrder(searchItem)">確定</button>
+                        </td>
+                    </tr>
+                   
+                </table>
+        
+
+                 <!--=================  詳細資訊 Table  =======================-->
+                 <table *ngIf="searchItem.value.is_info==true" class="table table-bordered th-center">
+                    <tr>
+                        <th class="bg-1" colspan="10">
+                            <i class="fas fa-info-circle"></i><span style="margin-left:5px">訂單詳細資訊</span>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="bg-1" style="width:110px">客戶</th>
+                        <td>{{ searchItem.value.info_obj.order_name }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">時間</th>
+                        <td>
+                            {{ searchItem.value.info_obj.start }}~ {{ searchItem.value.info_obj.end }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">分鐘</th>
+                        <td title="預約分鐘數">{{ searchItem.value.info_obj.during }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">價格</th>
+                        <td title="訂購價格">{{ searchItem.value.info_obj.price }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">付款日</th>
+                        <td>
+                           {{ searchItem.value.info_obj.pay_day }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">末4碼</th>
+                        <td>
+                           {{ searchItem.value.info_obj.pay_number }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1" title="由商店確認後改變付款狀態">付款</th>
+                        <td>
+                            <i *ngIf="searchItem.value.info_obj.is_pay==1" class="fas fa-check-circle" style="color:#1bd244" title="已付款"></i>
+                            <i *ngIf="searchItem.value.info_obj.is_pay!=1" class="fas fa-check-circle" style="color:#e0e0e0" title="未付款"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>關閉</th>
+                        <td>
+                            <button class="btn btn-sm btn-light" (click)="searchItem.value.is_info=false">關閉</button>
+                        </td>
+                    </tr>
+                </table>
+            
+        
+            </div>
+        </div>
+      
+

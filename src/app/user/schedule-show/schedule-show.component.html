@@ -1,0 +1,134 @@
+
+
+    <div style="width:100%;text-align:center">
+       
+        <h2>
+            <i class="fas fa-heart favorite-icon" title="加入最愛商店" [ngClass]="(dataObj.is_favorite)?['love']:null" (click)="favorite()"></i> 
+            <a routerLink="/user/store-show/{{ storeInfo.id }}">{{ storeInfo.store_name }}</a> - 每日預約時間顯示
+        </h2>
+        <span [hidden]="searchObj.month_set" class="badge badge-danger" style="font-size: 1.1em;margin-bottom:10px">本月不可預約</span>
+    </div>
+    
+    
+    
+    <div class="nostore"  [hidden]="storeInfo.id!='no-store' ">
+        <h1>此商店尚未建立，無法預約</h1>
+    </div>
+    
+    <div class="nostore"  [hidden]="storeInfo.id!=''">
+        <h1>資料讀取中........</h1>
+    </div>
+    
+    
+    
+    <div [hidden]="storeInfo.id=='no-store' ">
+        <div class="select-div">
+            <p-calendar [(ngModel)]="searchObj.search_y_m" view="month" dateFormat="yy-mm" [yearNavigator]="true" yearRange="2000:2030" [locale]="locale"
+             placeholder="查詢年月"  styleClass="calendar-input"></p-calendar>
+             <p-button label="查詢" styleClass="ui-button-secondary" (click)="goSearchByMnoth()"></p-button>
+        </div>
+        
+        <!--預約時間表顯示-->
+        <table class="table table-bordered margin100">
+            <tr>
+                <td class="bg-holiday2">日</td>
+                <td class="bg-date">一</td>
+                <td class="bg-date">二</td>
+                <td class="bg-date">三</td>
+                <td class="bg-date">四</td>
+                <td class="bg-date">五</td>
+                <td class="bg-holiday1">六</td>
+            </tr>
+            <tr *ngFor="let item of day_list">
+                <td *ngFor="let day_item of item | keyvalue">
+                    
+                     <div class="RWD-td" >
+                        <div *ngIf="day_item.value.day!=null" class="day-tool">
+                            <span class="day-title">{{ day_item.value.day }}</span>
+                            <i class="fas fa-file-signature" (click)="showOrderListModal(day_item)" [hidden]="!searchObj.month_set"></i>
+                        </div>
+                        
+                        <div *ngIf="day_item.value.day!=null" class="setting-list " >
+                             <!--========= 電腦版 ( >= 900px) ==============-->
+                            <div *ngFor="let set_item of day_item.value.s_list" class="setting-item screen-computer " >
+                                  {{ set_item.start }} ~ {{ set_item.end }}
+                            </div>
+                             <!--========= mobile 版 ( < 900px) ==============-->
+                            <div class="screen-mobile"><!-- title="顯示可預約時間表" -->
+                                <i class="fas fa-clock moo" (click)="mobile_showTime(day_item)" 
+                                [hidden]="day_item.value.s_list==null || day_item.value.s_list.length==0 "></i>
+                                <i class="fas fa-clock" title="本日沒有可預約時間" style="color:#ccc" [hidden]="day_item.value.s_list != null && day_item.value.s_list.length>0"></i>
+                            </div>
+                        </div>
+                     </div>
+                </td>
+            </tr>
+        </table>
+        
+    </div>
+
+    <!---mobile 顯示時間-->
+    <div id="popoverTemplete" class="popover" role="tooltip" style="display: none;">
+        <div class="arrow"></div>
+        <h3 class="popover-header">
+            <span >{{searchObj.year}}年 {{searchObj.month}} 月 {{mobileObj.showItem.value.day }} 日 ( {{mobileObj.showItem.key | week}} )</span>
+        </h3>
+        <div class="popover-body my-popover-body">
+            <div *ngFor="let set_item of mobileObj.showItem.value.s_list" class="setting-item" style="text-align: center">
+                {{ set_item.start }} ~ {{ set_item.end }}   
+            </div>
+        </div>
+    </div>
+       
+    
+    
+    <!-- Modal -->
+    <div class="modal fade" id="orderListModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="margin-top:20px;"><!-- modal-dialog-centered-->
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    {{searchObj.year}}-<span *ngIf="searchObj.month<10">0</span>{{searchObj.month}}-<span *ngIf="searchItem.value.day<10">0</span>{{searchItem.value.day}}
+                    <span>({{ searchItem.key| week }})</span>
+                    &nbsp;&nbsp;客戶預約表 
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <app-order-list-show [day_list]="day_list" [searchObj]="searchObj" [storeInfo]="storeInfo" [searchItem]="searchItem" (voted)="onVotedOrderList($event)"></app-order-list-show>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+
+
+
+
+
+
+
+
+       
+    <!---mobile 顯示時間-->
+    <!--
+        <div class="screen-mobile show-time" style="width:100%;">
+        <div *ngIf="mobileObj.showItem.value.day!=null">
+            <div class="day-tool">
+                <span >{{searchObj.year}}年 {{searchObj.month}} 月 {{mobileObj.showItem.value.day }} 日 ( {{mobileObj.showItem.key | week}} )</span>
+                <i class="fas fa-file-signature" (click)="showOrderListModal(mobileObj.showItem)"></i>
+            </div>
+            <div class="setting-list" >
+                <div *ngFor="let set_item of mobileObj.showItem.value.s_list" class="setting-item" style="text-align: center">
+                    {{ set_item.start }} ~ {{ set_item.end }} 
+                </div>
+            </div>
+        </div> 
+    </div>
+    
+    -->

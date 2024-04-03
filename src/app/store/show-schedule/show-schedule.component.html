@@ -1,0 +1,199 @@
+
+    
+    <div class="page-title"><h2>店家每日預約時間設定</h2></div>
+
+    <div class="select-div">
+        <p-calendar [(ngModel)]="searchObj.search_y_m" view="month" dateFormat="yy-mm" [yearNavigator]="true" yearRange="2000:2030" [locale]="locale"
+        placeholder="查詢年月"  styleClass="calendar-input"></p-calendar>
+        <p-button label="查詢" styleClass="ui-button-secondary" (click)="goSearchByMnoth()"></p-button>
+    </div>
+    
+    
+    <table  class="table table-bordered margin100">
+        <tr>
+            <td class="bg-holiday2">日</td>
+            <td class="bg-date">一</td>
+            <td class="bg-date">二</td>
+            <td class="bg-date">三</td>
+            <td class="bg-date">四</td>
+            <td class="bg-date">五</td>
+            <td class="bg-holiday1">六</td>
+        </tr>
+        <tr *ngFor="let item of day_list">
+            <td *ngFor="let day_item of item | keyvalue"  style="min-height:15px;"><!--[ngClass]="getBackgroundColor(day_item.key)"-->
+               
+                <div class="RWD-td">
+                  
+                    <div *ngIf="day_item.value.day!=null" class="day-tool">
+                        <span >{{ day_item.value.day }}</span>
+                       
+                        <i *ngIf="day_item.value.is_add===false" (click)="mobile_showAdd(day_item)" class="fas fa-plus-square screen-mobile moo-add" ></i><!--mobile-->
+                        <i *ngIf="day_item.value.is_add===false" title="增加預約時段" (click)="showAdd(day_item.value)" class="fas fa-plus-square screen-computer" ></i><!--computer-->
+                        <i *ngIf="day_item.value.is_add===true"  title="增加預約時段" style="color:#e7e8ea"class="fas fa-plus-square"   ></i>
+                        <i class="fas fa-file-signature" title="查看預約時段" (click)="showOrderListModal(day_item)"></i>
+                    </div>
+                    <!--預約時間列表顯示-->
+                    <div *ngIf="day_item.value.day!=null" class="setting-list" >
+                        <div *ngFor="let set_item of day_item.value.s_list" class="setting-item screen-computer" >
+                        <!--========= 電腦版 ( >= 1157px) ==============-->
+                            <!--========= 原本存在 + Extra 時間============-->
+                            <div [hidden]="set_item.extra_del==true">
+                                {{ set_item.start }} ~ {{ set_item.end }}
+                                <i class="fas fa-window-close" (click)="goDeleteExtra(set_item, day_item)" [hidden]="set_item.extra!=true" title="額外新增的時間，不可復原" style="color:#2473b8;"></i>
+                                <i class="fas fa-window-close" (click)="goAddExtraCut(set_item, day_item)" [hidden]="set_item.extra==true" title="統一定義的時間，可復原"></i>
+                            </div>
+                            <!--======= 被刪掉的時間  ======-->
+                            <div [hidden]="set_item.extra_del!=true">
+                                <span style="color:#ccc"><del>{{ set_item.start }} ~ {{ set_item.end }}</del></span>
+                                <i class="fas fa-check-square" title="復原時間" (click)="goRecoveryCutTime(set_item, day_item)"  ></i>
+                            </div>
+                        </div>
+                        <!--========= mobile ( < 1157px) ==============-->
+                        <div class="screen-mobile"><!-- title="顯示可預約時間表"-->
+                            <i class="fas fa-clock moo" (click)="mobile_showTime(day_item)" 
+                            [hidden]="day_item.value.s_list==null || day_item.value.s_list.length==0 "></i>
+                            <i class="fas fa-clock" title="本日沒有可預約時間" style="color:#ccc" [hidden]="day_item.value.s_list != null && day_item.value.s_list.length>0"></i>
+                        </div>
+                    </div>
+                    <!--新增欄位顯示-->
+                    <div *ngIf="day_item.value.is_add === true" class="add-frame">
+                        <input type="text" [(ngModel)]="day_item.value.add_obj.s_hour" class="time-field form-control" maxlength="2" placeholder="時" title="24小時制">:
+                        <input type="text" [(ngModel)]="day_item.value.add_obj.s_min" class="time-field form-control" maxlength="2" placeholder="分" title="24小時制">
+                        ~
+                        <input type="text" [(ngModel)]="day_item.value.add_obj.e_hour" class="time-field form-control" maxlength="2" placeholder="時" title="24小時制">:
+                        <input type="text" [(ngModel)]="day_item.value.add_obj.e_min" class="time-field form-control" maxlength="2" placeholder="分" title="24小時制">
+        
+                        <div style="margin-top:5px">
+                            <button class="btn btn-sm btn-light" title="取消" (click)="day_item.value.is_add=false">取消</button>
+                            <button class="btn btn-sm btn-primary" title="確定" (click)="checkAddExtra(day_item)" style="margin-left:3px">確定</button>
+                        </div>
+                    </div>
+                </div>
+             
+                <!--========= ...................==============-->
+            </td>
+        </tr>
+    </table>
+    
+
+
+    <!---mobile 顯示時間-->
+    <div id="popoverTemplete" class="popover" role="tooltip" style="display: none;">
+        <div class="arrow"></div>
+        <h3 class="popover-header">
+            <span >{{searchObj.year}}年 {{searchObj.month}} 月 {{mobileObj.showItem.value.day }} 日 ( {{mobileObj.showItem.key | week}} )</span>
+        </h3>
+        <div class="popover-body my-popover-body">
+            <div *ngFor="let set_item of mobileObj.showItem.value.s_list" class="setting-item" style="text-align: center;color:blue">
+                {{ set_item.start }} ~ {{ set_item.end }}   
+            </div>
+        </div>
+    </div>
+
+
+
+     <!---mobile 顯示新增-->
+    <div class="modal fade" id="addTimeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="document" style="margin-top:20px;">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    {{searchObj.year}}-<span *ngIf="searchObj.month<10">0</span>{{searchObj.month}}-<span *ngIf="mobileObj.addItem.value.day<10">0</span>{{mobileObj.addItem.value.day}}
+                    <span>({{mobileObj.addItem.key | week}})</span>
+                    <div>新增時間 </div>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="add-frame">
+                    <input type="text" [(ngModel)]="mobileObj.addItem.value.add_obj.s_hour" class="time-field form-control" maxlength="2" placeholder="時" title="24小時制">:
+                    <input type="text" [(ngModel)]="mobileObj.addItem.value.add_obj.s_min" class="time-field form-control" maxlength="2" placeholder="分" title="24小時制">
+                    ~
+                    <input type="text" [(ngModel)]="mobileObj.addItem.value.add_obj.e_hour" class="time-field form-control" maxlength="2" placeholder="時" title="24小時制">:
+                    <input type="text" [(ngModel)]="mobileObj.addItem.value.add_obj.e_min" class="time-field form-control" maxlength="2" placeholder="分" title="24小時制">
+    
+                    <div style="margin-top:5px">
+                        <button class="btn btn-sm btn-light" (click)="closeAddTimeModal()" title="取消" >取消</button>
+                        <button class="btn btn-sm btn-primary" (click)="checkAddExtra(mobileObj.addItem)" title="確定" style="margin-left:3px">確定</button>
+                    </div>
+                </div>  
+                <div class="mobile-time-list">
+                    <div>目前時間列</div>
+                    <div *ngFor="let list of mobileObj.addItem.value.s_list" [hidden]="mobileObj.addItem.value.s_list.length ==0 ">
+                        <div>{{ list.start }} ~ {{ list.end }}</div>
+                    </div>
+                    <div [hidden]="mobileObj.addItem.value.s_list.length >0 ">
+                        本日還沒有訂立的可預約時間
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+            </div>
+            </div>
+        </div>
+    </div>
+     
+     
+ 
+
+
+
+    <!-- 客戶預約表 Modal -->
+    <div class="modal fade" id="orderListModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog order-list-modal" role="document" style="margin-top:20px;"><!--modal-dialog-centered-->
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    {{searchObj.year}}-<span *ngIf="searchObj.month<10">0</span>{{searchObj.month}}-<span *ngIf="searchItem.value.day<10">0</span>{{searchItem.value.day}}
+                    <span>({{ searchItem.key| week }})</span>
+                     &nbsp;&nbsp;客戶預約表 
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <app-order-list [day_list]="day_list" [searchObj]="searchObj" [searchItem]="searchItem" (voted)="onVotedOrderList($event)"></app-order-list><!---->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+<!--
+    <div id="addTemplete" class="popover" role="tooltip" style="display: none;">
+        <div class="arrow"></div>
+        <h3 class="popover-header">
+            <span >{{searchObj.year}}年 {{searchObj.month}} 月 {{mobileObj.showItem.value.day }} 日 ( {{mobileObj.showItem.key | week}} )</span>
+        </h3>
+        <div class="popover-body my-popover-body">
+            <div class="add-frame">
+                <input type="text" [(ngModel)]="mobileObj.addItem.value.add_obj.s_hour" class="time-field form-control" maxlength="2" placeholder="時" title="24小時制">:
+                <input type="text" [(ngModel)]="mobileObj.addItem.value.add_obj.s_min" class="time-field form-control" maxlength="2" placeholder="分" title="24小時制">
+                ~
+                <input type="text" [(ngModel)]="mobileObj.addItem.value.add_obj.e_hour" class="time-field form-control" maxlength="2" placeholder="時" title="24小時制">:
+                <input type="text" [(ngModel)]="mobileObj.addItem.value.add_obj.e_min" class="time-field form-control" maxlength="2" placeholder="分" title="24小時制">
+
+                <div style="margin-top:5px">
+                    <button class="btn btn-sm btn-light" title="取消" >取消</button>
+                    <button class="btn btn-sm btn-primary" title="確定" style="margin-left:3px">確定</button>
+                </div>
+            </div>  
+        </div>
+    </div>   
+ -->
+    
+    
+    
+    
+    
+    

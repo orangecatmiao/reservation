@@ -1,0 +1,54 @@
+
+
+<div class="page-title"><h2>未來月份狀態</h2></div>
+<div class="switch-tool">
+    <p-inputSwitch [(ngModel)]="storeInfo.month_set" (onChange)="switchChange($event)" ></p-inputSwitch>
+    <span class="switch-month" [hidden]="!storeInfo.month_set">未來月份有在以下指定列表才可預約</span> 
+    <span class="switch-month" [hidden]="storeInfo.month_set">未來月份均可預約</span>    
+</div>
+<div class="page-title" style="color:red">{{error_msg}}</div>
+<table class="table table-bordered table-hover during-set-table" style="margin-top:15px;">
+    <tr>
+        <th class="during-bg">
+            未來可預約的月份
+            <span class="badge badge-warning" style="font-size: 1.1em;margin-left: 5px;">最多 6 個設定</span>
+        </th>
+    </tr>
+    <tr *ngFor="let item of list"><!--原始定義-->
+        <td>
+            <div>
+                <span *ngIf="item.is_edit!=true" class="during-item">{{ item.copy.ym }}</span>
+                <span *ngIf="item.is_edit==true" class="during-item">
+                    <p-calendar [(ngModel)]="item.ym" view="month" dateFormat="yy/mm" [yearNavigator]="true" yearRange="2020:2021" [locale]="locale" 
+                    placeholder="選擇開放預約月分"  styleClass="calendar-input"></p-calendar>
+                   <!-- <input type="number"  class="form-control" [(ngModel)]="item.ym" placeholder="分鐘數" style="width:60px;text-align:center">-->
+                </span>
+                <span style="margin-left:10px">
+                    <span *ngIf="item.is_edit==true">
+                        <i class="fas fa-save" (click)="update(item)" title="確認修改"></i>
+                        <i class="fas fa-window-close" (click)="cancelDelete(item)" title="取消修改" style="margin-left:8px;color:#000;"></i>
+                    </span>
+                    <span *ngIf="item.is_edit!=true">
+                        <i class="fas fa-pen-square" (click)="showEdit(item)" title="修改"></i>
+                        <i class="fas fa-trash-alt" (click)="goDelete(item)" title="刪除" style="margin-left:8px;font-size: 21px"></i>
+                    </span>
+                  
+                </span>
+            </div>       
+        </td>
+    </tr>
+    <tr *ngFor="let item of add_list"><!--新增的-->
+        <td>
+            <div>
+                <!--<input type="number" [(ngModel)]="item.ym" class="form-control" placeholder="分鐘數" (click)="addNewRow(item)" style="width:60px;text-align:center">-->
+                <p-calendar [(ngModel)]="item.ym" view="month" dateFormat="yy/mm" [yearNavigator]="true" yearRange="2020:2021" [locale]="locale" (onSelect)="addNewRow(item)"
+                placeholder="選擇開放預約月分"  styleClass="calendar-input"></p-calendar>
+                <span style="margin-left:10px">
+                    <i class="fas fa-save" (click)="goCreate(item)" title="儲存"></i>
+                    <i class="fas fa-window-close" (click)="deleteNewRow(item)" title="取消" style="margin-left:6px" ></i>
+                </span>
+            </div>
+        </td>
+    </tr>
+</table>
+

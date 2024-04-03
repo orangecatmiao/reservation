@@ -1,0 +1,281 @@
+    <div class="order-list">
+
+        <div style="width:100%;text-align:center"><h2>客戶訂單</h2></div>
+
+        <!--查詢-->
+        <div class="select-div">
+            <form [formGroup]="cusForm">
+                <select formControlName="status" class="form-control search-select">
+                    <option value="">全部</option>
+                    <option value="0">有效訂單</option>
+                    <option value="1">取消訂單</option>
+                </select>
+                <p-calendar formControlName="search_y_m" view="month" dateFormat="yy/mm" [yearNavigator]="true" yearRange="2000:2030" [locale]="locale"
+                placeholder="查詢年月"  styleClass="calendar-input"></p-calendar>
+                <p-button label="查詢" styleClass="ui-button-secondary" (click)="goSearchByMnoth()"></p-button>
+            </form>
+        </div>
+
+
+        <div class="page-title" [hidden]="list.length>0">
+            <h2>您目前尚無任何客戶訂單</h2>
+        </div>
+
+        <!--===================  table -computer  ========================================-->
+        <table class="table table-hover table-bordered col-md-10 screen-computer" style="margin:auto"  [hidden]="list.length==0">
+            <thead>
+                <tr class="table-primary">
+                    <th>客戶</th>
+                    <th>
+                        預約日
+                        <i class="fas fa-sort-up" (click)="sort('order_date','desc')" [hidden]="sortObj.order_date=='desc' "></i>
+                        <i class="fas fa-sort-down" (click)="sort('order_date','asc')" [hidden]="sortObj.order_date=='asc' "></i>
+                    </th>
+                    <th>時段</th>
+                    <th>分鐘</th>
+                    <th>金額</th>
+                    <th>付款</th>
+                    <th>建立日</th>
+                    <th>狀態</th>
+                    <th>詳細</th>
+                </tr>
+            </thead>
+            <tbody>
+                    <tr *ngFor="let item of list" [ngClass]="(item.isChoose===1)?['choosed-item']:null"> 
+                        <td>{{ item.order_name }}</td>
+                        <td>{{ item.order_ym | ym }}/{{ item.order_date | zday }} ({{item.week|week}})</td>
+                        <td>{{ item.start }}~{{ item.end }}</td>
+                        <td>{{ item.during }}分鐘</td>
+                        <td>{{ item.price }}</td>
+                        <td>
+                            <i [hidden]="item.is_pay!=1" class="fas fa-check-circle" style="color:#1bd244"></i>
+                            <i [hidden]="item.is_pay==1" class="fas fa-check-circle" style="color:#e0e0e0"></i>
+                            {{ item.is_pay | payshow }}
+                        </td>
+                        <td>{{ item.created }}</td>
+                        <td><span class="badge" [ngClass]="(item.cancel==1)?['badge-secondary']:['badge-success']"> {{ item.cancel | orderstatus }} </span></td>
+                        <td>
+                            <a href="javascript:void(0)" (click)="showModal(item)">查看</a><!--routerLink="/store/customer-order-info/{{ item.id }}"-->
+                        </td>
+                    </tr>
+            </tbody>
+        <!--
+                <tr>
+                <td colspan="10" align="center">
+                    <button class="btn btn-light" (click)="prev()">上一頁</button>
+                    <span class="page-tool">第 <span class="page-num">3</span> 頁</span>
+                    <button class="btn btn-light" (click)="next()">下一頁</button>
+                </td>
+            </tr>
+        -->
+        </table>
+
+        <!--===================  table -mobile  ========================================-->
+        <table class="table table-hover table-bordered  col-xs-12 screen-mobile" [hidden]="list.length==0">
+            <thead>
+                <tr class="table-primary">
+                    <th>
+                        預約日
+                        <i class="fas fa-sort-up" (click)="sort('order_date','desc')" [hidden]="sortObj.order_date=='desc' "></i>
+                        <i class="fas fa-sort-down" (click)="sort('order_date','asc')" [hidden]="sortObj.order_date=='asc' "></i>
+                    </th>
+                    <th>時段</th>
+                    <th>金額</th>
+                    <th style="width:45px">詳細</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of list" [ngClass]="(item.isChoose===1)?['choosed-item']:null">
+                    <td>
+                        {{ item.order_ym | ym }}/{{ item.order_date | zday }} ({{item.week|week}})
+                        <span class="badge" [ngClass]="(item.cancel==1)?['badge-secondary']:['badge-primary']" style="margin-right: 15px;">
+                            {{ item.cancel | orderstatus }}
+                        </span>
+
+                    </td>
+                    <td>{{ item.start }}~{{ item.end }}</td>
+                    <td>{{ item.price }}</td>
+                    <td>
+                        <a href="javascript:void(0)" (click)="showModal(item)">查看</a><!--routerLink="/store/customer-order-info/{{ item.id }}"-->
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+
+
+    <!--===================  Modal  ========================================-->
+    <div class="modal fade" id="orderInfoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                   客戶訂單編號:  {{ searchItem.id }}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!--===============  Modal-computer   ================================-->
+                <table class="table table-bordered screen-computer">
+                    <tr>
+                        <th class="title-th table-primary">訂單編號</th>
+                        <td style="width:35%">{{ searchItem.id }}</td>
+                        <th class="title-th table-primary">付款</th>
+                        <td>
+                            <span [hidden]="searchItem.is_pay!=1">
+                                <i class="fas fa-check-circle" style="color:#1bd244"></i>
+                                <span class="badge badge-success" style="margin-left:8px;">{{ searchItem.is_pay | payshow }}</span>
+                            </span>
+                            <span [hidden]="searchItem.is_pay==1">
+                                <i class="fas fa-check-circle" style="color:#e0e0e0"></i>
+                                <span class="badge badge-secondary" style="margin-left:8px;">{{ searchItem.is_pay | payshow }}</span>
+                                <button class="btn btn-sm btn-warning" (click)="goUpdatePay()" [hidden]="searchItem.cancel!=0 "
+                                title="當您確認付款以後，此訂單的客戶會收到此通知" style="margin-left: 15px;">確認付款</button>
+                            </span>
+                         </td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary"> <span class="badge badge-danger">付款碼</span></th>
+                        <td>
+                            <span [hidden]="searchItem.pay_number==''">
+                                付款帳戶末 4 碼: <span class="badge badge-warning" style="margin-left:8px;">{{ searchItem.pay_number }}</span>
+                            </span>
+                        </td>
+                        <th class="title-th table-primary"> <span class="badge badge-danger">付款日期</span></th>
+                        <td>{{ searchItem.pay_day }}</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">客戶名稱</th>
+                        <td>{{ searchItem.order_name }}</td>
+                        <th class="title-th table-primary">預約日期</th>
+                        <td>{{ searchItem.order_ym | ym }}/{{ searchItem.order_date | zday }} ({{searchItem.week|week}})</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">時段</th>
+                        <td>{{ searchItem.start }}~{{ searchItem.end }}</td>
+                        <th class="title-th table-primary">時數</th>
+                        <td>{{ searchItem.during }}分鐘</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">價格</th>
+                        <td>{{ searchItem.price }}</td>
+                        <th class="title-th table-primary">建立日期</th>
+                        <td>{{ searchItem.created }}</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">修改日期</th>
+                        <td colspan="10">{{ searchItem.updated }}</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">訂單狀態</th>
+                        <td colspan="10">
+                            <span class="badge" [ngClass]="(searchItem.cancel==1)?['badge-secondary']:['badge-success']" style="margin-right:8px;">
+                                {{ searchItem.cancel | orderstatus }}
+                            </span>
+                            <span [hidden]="searchItem.cancel!=1">
+                                <span [hidden]="searchItem.cancel_uid == searchItem.order_uid ">已由自己取消</span>
+                                <span [hidden]="searchItem.cancel_uid == searchItem.store_uid ">已由客戶取消</span>
+                            </span>
+                            <button class="btn btn-sm btn-dark" [hidden]="searchItem.cancel!=0" (click)="goDeleteOrderItem()">取消訂單</button>
+                        </td>
+                    </tr>
+                    <tr [hidden]="searchItem.cancel_remark==null || searchItem.cancel_remark=='' ">
+                        <th class="title-th table-primary">取消原因</th>
+                        <td colspan="10">{{ searchItem.cancel_remark }}</td>
+                    </tr>
+                </table>
+
+
+                <!--===============  Modal-mobile   ================================-->
+                <table class="table table-bordered screen-mobile">
+                    <tr>
+                        <th class="title-th table-primary">訂單編號</th>
+                        <td>{{ searchItem.id }}</td>
+                    </tr>   
+                    <tr>
+                        <th class="title-th table-primary">付款</th>
+                        <td>
+                            <span [hidden]="searchItem.is_pay!=1">
+                                <i class="fas fa-check-circle" style="color:#1bd244"></i>
+                                <span class="badge badge-success" style="margin-left:8px;">{{ searchItem.is_pay | payshow }}</span>
+                            </span>
+                            <span [hidden]="searchItem.is_pay==1">
+                                <i class="fas fa-check-circle" style="color:#e0e0e0"></i>
+                                <span class="badge badge-secondary" style="margin-left:8px;">{{ searchItem.is_pay | payshow }}</span>
+                                <button class="btn btn-sm btn-warning" (click)="goUpdatePay()" [hidden]="searchItem.cancel!=0 "
+                                title="當您確認付款以後，此訂單的客戶會收到此通知" style="margin-left: 15px;">確認付款</button>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary"> <span class="badge badge-danger">付款碼</span></th>
+                        <td>
+                            <span [hidden]="searchItem.pay_number==''">
+                                付款帳戶末 4 碼: <span class="badge badge-warning" style="margin-left:8px;">{{ searchItem.pay_number }}</span>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary"><span class="badge badge-danger">付款日期</span></th>
+                        <td>{{ searchItem.pay_day }}</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">客戶名稱</th>
+                        <td>{{ searchItem.order_name }}</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">預約日期</th>
+                        <td>{{ searchItem.order_ym | ym }}/{{ searchItem.order_date | zday }} ({{searchItem.week|week}})</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">時段</th>
+                        <td>{{ searchItem.start }}~{{ searchItem.end }}</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">時數</th>
+                        <td>{{ searchItem.during }}分鐘</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">價格</th>
+                        <td>{{ searchItem.price }}</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">建立日期</th>
+                        <td>{{ searchItem.created }}</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">修改日期</th>
+                        <td>{{ searchItem.updated }}</td>
+                    </tr>
+                    <tr>
+                        <th class="title-th table-primary">訂單狀態</th>
+                        <td>
+                            <span class="badge" [ngClass]="(searchItem.cancel==1)?['badge-secondary']:['badge-success']" style="margin-right:8px;">
+                                {{ searchItem.cancel | orderstatus }}
+                            </span>
+                              <span [hidden]="searchItem.cancel!=1">
+                                <span [hidden]="searchItem.cancel_uid == searchItem.order_uid ">已由自己取消</span>
+                                <span [hidden]="searchItem.cancel_uid == searchItem.store_uid ">已由客戶取消</span>
+                            </span>
+                            <button class="btn btn-sm btn-dark" [hidden]="searchItem.cancel!=0" (click)="goDeleteOrderItem()">取消訂單</button>
+                        </td>
+                    </tr>
+                    <tr [hidden]="searchItem.cancel_remark==null || searchItem.cancel_remark=='' ">
+                        <th class="title-th table-primary">取消原因</th>
+                        <td>{{ searchItem.cancel_remark }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    

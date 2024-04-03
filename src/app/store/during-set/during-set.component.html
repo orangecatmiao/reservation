@@ -1,0 +1,70 @@
+
+
+<div class="page-title"><h2>時段價格設定</h2></div>
+<!--
+    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+    <strong>預約時段設定</strong> 您可以在此設定每次可預約的分鐘數
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+-->
+
+<table class="table table-bordered table-hover during-set-table" style="margin-top:15px;">
+    <tr>
+        <th class="during-bg">
+            每次預約時段
+            <span class="badge badge-warning" style="font-size: 1.1em;margin-left: 5px;">最多 20 個項目</span>
+        </th>
+    </tr>
+    <tr *ngFor="let item of list"><!--原始定義-->
+        <td>
+            <div>
+
+                <span *ngIf="item.is_edit!=true" class="i_name-item">{{ item.i_name }}</span>
+                <span *ngIf="item.is_edit==true">
+                    <input type="text"  class="form-control i_name-item-input" [(ngModel)]="item.i_name" placeholder="項目名稱">
+                </span>
+                ,
+                <span *ngIf="item.is_edit!=true" class="during-time" style="text-align: right;">{{ item.during }}</span>
+                <span *ngIf="item.is_edit==true" class="during-item">
+                    <input type="number"  class="form-control" [(ngModel)]="item.during" placeholder="分鐘數" style="width:60px;text-align:center">
+                </span>
+                <span> 分鐘， </span>
+                <span *ngIf="item.is_edit!=true" class="during-time">{{ item.price }}</span>
+                <span *ngIf="item.is_edit==true" class="during-item">
+                    <input type="number"  class="form-control input-price" [(ngModel)]="item.price" placeholder="價格">
+                </span>
+                <span> 元 </span>
+                <span class="m-tool">
+                    <span *ngIf="item.is_edit==true">
+                        <i class="fas fa-save" (click)="update(item)" title="確認修改"></i>
+                        <i class="fas fa-window-close" (click)="cancelDelete(item)" title="取消修改" style="margin-left:8px;color:#000;"></i>
+                    </span>
+                    <span *ngIf="item.is_edit!=true">
+                        <i class="fas fa-pen-square" (click)="showEdit(item)" title="修改"></i>
+                        <i class="fas fa-trash-alt" (click)="goDelete(item)" title="刪除" style="margin-left:8px;"></i>
+                    </span>
+                  
+                </span>
+            </div>       
+        </td>
+    </tr>
+    <tr *ngFor="let item of add_list"><!--新增的-->
+        <td>
+            <div>
+                <input type="text" [(ngModel)]="item.i_name" class="form-control i_name-item-input" placeholder="項目名稱" (click)="addNewRow(item)">&nbsp;
+                <input type="number" [(ngModel)]="item.during" class="form-control" placeholder="分鐘數" (click)="addNewRow(item)" style="width:60px;text-align:center">
+                分鐘，
+                <input type="number" [(ngModel)]="item.price" class="form-control input-price" placeholder="價格" (click)="addNewRow(item)">
+                元
+                <span class="m-tool">
+                    <i class="fas fa-save" (click)="goCreate(item)" title="儲存"></i>
+                    <i class="fas fa-window-close" (click)="deleteNewRow(item)" title="取消" style="margin-left:6px" ></i>
+                </span>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<!--$event.stopPropagation();-->

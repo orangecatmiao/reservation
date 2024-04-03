@@ -1,0 +1,68 @@
+
+  
+  <div style="color: red;">
+      {{errorMsg}}
+  </div>
+  <div class="page-title"><h2>店家設定時間</h2></div>
+  <div  class="page-title">
+    <span class="badge badge-dark" style="font-size: 1.3em;">請輸入 00:00 ~ 23:59</span>
+    <span class="badge badge-warning" style="font-size: 1.3em;margin-left: 5px;">一天最多 20 個時段</span>
+  </div>
+
+  
+
+
+  <div class="time-frame">
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item">
+              <a class="nav-link active" id="week0-tab" data-toggle="tab" href="#week0" role="tab" aria-controls="week0" aria-selected="true">星期一</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" id="week1-tab" data-toggle="tab" href="#week1" role="tab" aria-controls="week1" aria-selected="false">星期二</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" id="week2-tab" data-toggle="tab" href="#week2" role="tab" aria-controls="week2" aria-selected="false">星期三</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" id="week3-tab" data-toggle="tab" href="#week3" role="tab" aria-controls="week3" aria-selected="false">星期四</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" id="week4-tab" data-toggle="tab" href="#week4" role="tab" aria-controls="week4" aria-selected="false">星期五</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" id="week5-tab" data-toggle="tab" href="#week5" role="tab" aria-controls="week5" aria-selected="false">星期六</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" id="week6-tab" data-toggle="tab" href="#week6" role="tab" aria-controls="week6" aria-selected="false">星期日</a>
+          </li>
+      </ul>
+      <div class="tab-content" id="myTabContent">
+          <div *ngFor="let num of num_list" class="tab-pane fade" [ngClass]="(num===0)?['show','active']:null" [id]="'week'+num" 
+          role="tabpanel" [attr.aria-labelledby]="'week'+num+'-tab'">
+              <div style="padding: 5px">星期{{num+1 | week}}</div>
+              <div *ngFor="let item of week[num]" style="margin-bottom:5px">
+                  <span>{{item.start }}</span> 
+                  ~
+                  <span>{{item.end }}</span>
+                  <i class="fas fa-window-close" (click)="goDelete(item,num)" title="刪除"></i>
+              </div>
+  
+  
+              
+              <div *ngFor="let item of week_add[num]" (click)="addNewRow(item,num)" style="margin-bottom:5px">
+                  <input type="text" [(ngModel)]="item.s_hour" class="form-control" title="可預約的開始時間" placeholder="時" maxlength="2" style="width:45px">:
+                  <input type="text" [(ngModel)]="item.s_min" class="form-control" title="可預約的開始時間" placeholder="分" maxlength="2" style="width:45px">
+                  ~
+                  <input type="text" [(ngModel)]="item.e_hour" class="form-control"  title="可預約的結束時間" placeholder="時" maxlength="2" style="width:45px">:
+                  <input type="text" [(ngModel)]="item.e_min" class="form-control" title="可預約的結束時間" placeholder="分" maxlength="2" style="width:45px">
+                  <i class="fas fa-save" (click)="$event.stopPropagation();checkTime(item, week[num],num)" title="儲存" style="text-align:center;margin-left:8px"></i>
+                  <i class="fas fa-window-close" (click)="$event.stopPropagation();deleteNewRow(item,num)" title="取消" style="text-align:center;"></i>
+              </div>
+          </div>
+         
+      </div>
+  </div>
+  
+
+    
+  

@@ -1,0 +1,369 @@
+
+
+        
+        <div class="row">
+            <div class="col-xs-12 col-md-2" style="text-align:center;padding:8px;border:1px dashed #b1b1b1">
+                <div style="text-align: center;">預約時段</div>
+                <div *ngFor="let s_item of searchItem.value.s_list" style="padding:3px 0">
+                    <i class="fas fa-clock"></i>
+                    {{s_item.start }}~{{s_item.end }} 
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-10" style="padding:8px;">
+                <div style="text-align:center" [hidden]=" searchItem.value.s_list==0 ">
+                    <button class="btn btn-primary" (click)="showAddTable()" [disabled]="searchItem.value.is_add_order==true" style="float:left;margin-bottom:10px;">
+                        <i class="fas fa-plus-circle"></i> 新增
+                    </button>
+                    客戶約定時間
+                </div>
+            
+                <!--=================  預約列表 Table  =======================-->
+                <div *ngIf="searchItem.value.order_list!=null && searchItem.value.order_list.length==0" style="padding:50px;text-align: center">
+                    <h5 style="color: #59ad7f;font-weight: 900;">今日沒有客戶預約</h5>
+                </div>
+                <table *ngIf="searchItem.value.order_list!=null && searchItem.value.order_list.length>0" class="table table-bordered th-center" style="width:100%">
+                    <tr>
+                        <th class="bg-1 screen-computer">客戶</th>
+                        <th class="bg-1">時間</th>
+                        <th class="bg-1 screen-computer">分鐘</th>
+                        <th class="bg-1">價格</th>
+                        <th class="bg-1 screen-computer" >付款日</th>
+                        <th class="bg-1 screen-computer">末4碼</th>
+                        <th class="bg-1 field-pay" title="由商店確認後改變付款狀態">付款</th>
+                        <th class="bg-1 screen-computer">建立</th>
+                        <th class="bg-1 field-tool">修改</th>
+                    </tr>
+                    <tr *ngFor="let sorder of searchItem.value.order_list" [ngClass]="(sorder.is_item_edit==true)?['bg-edit']:['bgg']">
+                        <td title="客戶名稱" class="screen-computer"> 
+                            <span *ngIf="sorder.order_uid == uid">{{ sorder.order_name }}</span> 
+                            <span *ngIf="sorder.order_uid != uid">***</span>
+                        </td>
+                        <td style="text-align:center" title="預約時段">{{ sorder.start }}~{{ sorder.end }}</td><!--{{ sorder.start|noSecond }} #change1 lala  2020/06/20-->
+                        <td style="text-align:center" title="預約分鐘數" class="screen-computer">{{ sorder.during }}</td>
+                        <td style="text-align:center" title="預約價格">{{ sorder.price }}</td>
+                        <td style="text-align:center" title="付款日" class="screen-computer"> 
+                            <span *ngIf="sorder.order_uid == uid">{{ sorder.pay_day }}</span> 
+                            <span *ngIf="sorder.order_uid != uid">***</span> 
+                        </td>
+                        <td style="text-align:center" title="付款帳號末 4 碼" class="screen-computer"> 
+                            <span *ngIf="sorder.order_uid == uid">{{ sorder.pay_number }}</span>
+                            <span *ngIf="sorder.order_uid != uid">***</span>
+                        </td>
+                        <td style="text-align:center">
+                            <span *ngIf="sorder.order_uid == uid">
+                                <i [hidden]="sorder.is_pay!=1" class="fas fa-check-circle" style="color:#1bd244" title="已付款"></i><!--*ngIf="sorder.is_pay==1"-->
+                                <i [hidden]="sorder.is_pay==1" class="fas fa-check-circle" style="color:#e0e0e0" title="未付款"></i><!--*ngIf="sorder.is_pay!=1"-->
+                            </span>
+                            <span  *ngIf="sorder.order_uid != uid">
+                                ***
+                            </span>
+                        </td>
+                        <td title="訂單建立日期" valign="middle" class="screen-computer">
+                            <span style="text-align:center;font-size:12px;" >{{ sorder.created }}</span>
+                        </td>
+                        <td style="text-align:center"><!-- auth -->
+                            <div *ngIf="sorder.order_uid == uid" >
+                                <span *ngIf="sorder.pay_day=='' && sorder.pay_number==''">
+                                    <i class="fas fa-edit" (click)="showOrderEdit(sorder, searchItem)" title="修改"></i>
+                                    <i class="fas fa-trash-alt" (click)="goDeleteOrderItem(sorder, searchItem)" title="刪除" style="margin-left:5px"></i>
+                                    <i class="fas fa-info-circle" (click)="showOrderInfo(sorder, searchItem) " title="詳細資訊" style="margin-left:5px"></i>
+                                </span>
+                                <span *ngIf="sorder.pay_day!='' || sorder.pay_number!='' ">
+                                    已完成
+                                </span>
+                            </div>
+                            <div *ngIf="sorder.order_uid != uid" >
+                                ***
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+        
+                <!--=================  新增Table  ===========================-->
+                <table *ngIf="searchItem.value.is_add_order==true" class="table table-bordered th-center">
+                    <tr>
+                        <th class="bg2" colspan="10">
+                            <i class="fas fa-plus-circle"></i><span style="margin-left:5px">新增訂單</span>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="bg2" style="width:110px;">預約時間</th>
+                        <td>
+                            <input type="text" [(ngModel)]="searchItem.value.add_order_obj.s_hour" 
+                            class="time-field form-control" placeholder="時" maxlength="2" title="24小時制" (blur)="calculateMinute()">:
+                            <input type="text" [(ngModel)]="searchItem.value.add_order_obj.s_min" 
+                            class="time-field form-control" placeholder="分"  maxlength="2" title="24小時制" (blur)="calculateMinute()">
+                            ~
+                           {{ searchItem.value.add_order_obj.e_hour }}: {{ searchItem.value.add_order_obj.e_min }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg2">分鐘數</th>
+                        <td>
+                            <select [(ngModel)]="searchItem.value.add_order_obj.duringObj" (change)="calculateMinute()" class="form-control"  title="預約分鐘數" style="max-width:200px" >
+                                <option [value]="duringObj">分鐘數</option>
+                                <option *ngFor="let during of during_list" [ngValue]="during">{{ during.i_name }}-{{ during.during }}分鐘</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg2">價格</th>
+                        <td>
+                            {{ searchItem.value.add_order_obj.price }}
+                        </td>
+                    </tr>
+                     <tr>
+                        <th class="bg2">付款日</th>
+                        <td>
+                            <p-calendar
+                            [(ngModel)]="searchItem.value.add_order_obj.pay_day" dateFormat="yy/mm/dd" [yearNavigator]="true" yearRange="2020:2021" [locale]="locale"
+                            [showTime]="true"  placeholder="選擇付款日"  styleClass="calendar-input"></p-calendar>
+                        </td>
+                     </tr>
+                    <tr>
+                        <th class="bg2">帳號</th>
+                        <td>
+                            <!--
+                                <input type="text" class="form-control" [(ngModel)]="searchItem.value.add_order_obj.pay_number" placeholder="末4碼" maxlength="4" title="請填入付款帳號末4碼以供確認"
+                            style="width:60px">
+                            -->
+                            <p-inputMask [(ngModel)]="searchItem.value.add_order_obj.pay_number" mask="9999" placeholder="末4碼" title="付款帳號末4碼"></p-inputMask>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg2">修改</th>
+                        <td>
+                            <button class="btn btn-sm btn-light" (click)="searchItem.value.is_add_order=false" style="margin-right: 8px;">取消</button>
+                            <button class="btn btn-sm btn-success" (click)="checkAddOrder(searchItem)">確定</button>
+                        </td>
+                    </tr>
+                </table>
+        
+        
+        
+                <!--=================  修改Table  ===========================-->
+                <table *ngIf="searchItem.value.is_edit==true" class="table table-bordered th-center">
+                    <tr>
+                        <td colspan="10">
+                            <strong class="error-msg">請注意，只能修改一次，務必將資料填寫完整，謝謝您。</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit" colspan="10">
+                            <i class="fas fa-edit"></i><span style="margin-left:5px">修改訂單</span>
+                        </th>
+                    </tr>             
+                    <tr>
+                        <th class="bg-edit field-name" style="width:110px">客戶</th>
+                        <td>{{ searchItem.value.edit_obj.order_name }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit field-time">時間</th>
+                        <td>
+                            {{ searchItem.value.edit_obj.s_hour }}:{{ searchItem.value.edit_obj.s_min }} ~ 
+                            {{ searchItem.value.edit_obj.e_hour }}:{{ searchItem.value.edit_obj.e_min }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit field-during">分鐘</th>
+                        <td title="預約分鐘數">{{ searchItem.value.edit_obj.during }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit field-price">價格</th>
+                        <td title="訂購價格">{{ searchItem.value.edit_obj.price }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit">付款日</th>
+                        <td>
+                            <p-calendar *ngIf="searchItem.value.edit_obj && searchItem.value.edit_obj.copy.pay_day=='' "
+                            [(ngModel)]="searchItem.value.edit_obj.pay_day" dateFormat="yy/mm/dd" [yearNavigator]="true" yearRange="2020:2021" [locale]="locale"
+                            [showTime]="true" placeholder="選擇付款日"  styleClass="calendar-input"></p-calendar>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit">末4碼</th>
+                        <td>
+                            <p-inputMask [(ngModel)]="searchItem.value.edit_obj.pay_number" mask="9999" placeholder="末4碼" title="付款帳號末4碼"></p-inputMask>
+                            <!--
+                                  <input type="text" [(ngModel)]="searchItem.value.edit_obj.pay_number" class="form-control" placeholder="末4碼" title="付款帳號末4碼" maxlength="4" style="width:110px">
+                            -->
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit field-pay" title="由商店確認後改變付款狀態">付款</th>
+                        <td>
+                            <i *ngIf="searchItem.value.edit_obj.is_pay==1" class="fas fa-check-circle" style="color:#1bd244" title="已付款"></i>
+                            <i *ngIf="searchItem.value.edit_obj.is_pay!=1" class="fas fa-check-circle" style="color:#e0e0e0" title="未付款"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-edit field-tool">修改</th>
+                        <td>
+                            <button class="btn btn-sm btn-light" (click)="cancelOederEdit(searchItem)" style="margin-right: 8px;">取消</button>
+                            <button class="btn btn-sm btn-success" (click)="checkEditOrder(searchItem)">確定</button>
+                        </td>
+                    </tr>
+                </table>
+        
+        
+                <!--=================  詳細資訊 Table  =======================-->
+                <table *ngIf="searchItem.value.is_info==true" class="table table-bordered th-center">
+                    <tr>
+                        <th class="bg-1" colspan="10">
+                            <i class="fas fa-info-circle"></i><span style="margin-left:5px">訂單詳細資訊</span>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="bg-1" style="width:110px">客戶</th>
+                        <td>{{ searchItem.value.info_obj.order_name }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">時間</th>
+                        <td>
+                            {{ searchItem.value.info_obj.start }}~ {{ searchItem.value.info_obj.end }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">分鐘</th>
+                        <td title="預約分鐘數">{{ searchItem.value.info_obj.during }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">價格</th>
+                        <td title="訂購價格">{{ searchItem.value.info_obj.price }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">付款日</th>
+                        <td>
+                           {{ searchItem.value.info_obj.pay_day }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">末4碼</th>
+                        <td>
+                           {{ searchItem.value.info_obj.pay_number }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1" title="由商店確認後改變付款狀態">付款</th>
+                        <td>
+                            <i *ngIf="searchItem.value.info_obj.is_pay==1" class="fas fa-check-circle" style="color:#1bd244" title="已付款"></i>
+                            <i *ngIf="searchItem.value.info_obj.is_pay!=1" class="fas fa-check-circle" style="color:#e0e0e0" title="未付款"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">建立日期</th>
+                        <td>
+                           {{ searchItem.value.info_obj.created }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">修改日期</th>
+                        <td>
+                           {{ searchItem.value.info_obj.updated }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-1">關閉</th>
+                        <td>
+                            <button class="btn btn-sm btn-light" (click)="searchItem.value.is_info=false">關閉</button>
+                        </td>
+                    </tr>
+                </table>
+            
+        
+            </div>
+        </div>
+      
+
+
+
+
+
+ <!--=================  新增Table  ===========================-->
+<!--
+     <table *ngIf="searchItem.value.is_add_order==true" class="table table-bordered th-center">
+    <tr>
+        <th class="bg2" style="width:220px;">預約時間</th>
+        <th class="bg2" style="width:110px;">分鐘數</th>
+        <th class="bg2" style="width:80px;">價格</th>
+        <th class="bg2" style="width:80px;">付款日</th>
+        <th class="bg2" style="width:80px;">帳號</th>
+        <th class="bg2" style="width:125px;">修改</th>
+    </tr>
+    <tr>
+        <td style="text-align:center">
+            <input type="text" [(ngModel)]="searchItem.value.add_order_obj.s_hour" 
+            class="time-field form-control" placeholder="時" maxlength="2" title="24小時制" (blur)="calculateMinute()">:
+            <input type="text" [(ngModel)]="searchItem.value.add_order_obj.s_min" 
+            class="time-field form-control" placeholder="分"  maxlength="2" title="24小時制" (blur)="calculateMinute()">
+            ~
+           {{ searchItem.value.add_order_obj.e_hour }}: {{ searchItem.value.add_order_obj.e_min }}
+        </td>
+        <td style="text-align:center">
+            <select [(ngModel)]="searchItem.value.add_order_obj.during" (change)="calculateMinute()" class="form-control"  title="預約分鐘數" >
+                <option value="">分鐘數</option>
+                <option *ngFor="let during of during_list" [value]="during.during">{{ during.during }}分鐘</option>
+            </select>
+        </td>
+        <td style="text-align:center">
+            {{ searchItem.value.add_order_obj.price }}
+        </td>
+        <td>
+            <p-calendar [(ngModel)]="searchItem.value.add_order_obj.pay_day" dateFormat="yy-mm-dd" [yearNavigator]="true" yearRange="2020:2021" [locale]="locale"
+            placeholder="選擇付款日"  styleClass="calendar-input"></p-calendar>
+        </td>
+        <td style="text-align:center">
+            <input type="text" class="form-control" [(ngModel)]="searchItem.value.add_order_obj.pay_number" maxlength="4" title="請填入付款帳號末4碼以供確認"
+            style="width:60px">
+        </td>
+        <td style="text-align:center">
+            <button class="btn btn-sm btn-light" (click)="searchItem.value.is_add_order=false" style="margin-right: 8px;">取消</button>
+            <button class="btn btn-sm btn-success" (click)="checkAddOrder(searchItem)">確定</button>
+        </td>
+    </tr>
+</table>
+-->
+  <!--=================  修改Table  ===========================-->
+<!--
+      <table *ngIf="searchItem.value.is_edit==true" class="table table-bordered th-center">
+    <tr>
+        <td colspan="10">
+            <strong class="error-msg">請注意，只能修改一次，務必將資料填寫完整，謝謝您。</strong>
+        </td>
+    </tr>
+   <tr>
+       <th class="bg-edit field-name">客戶</th>
+       <th class="bg-edit field-time">時間</th>
+       <th class="bg-edit field-during">分鐘</th>
+       <th class="bg-edit field-price">價格</th>
+       <th class="bg-edit" style="width:120px;">付款日</th>
+       <th class="bg-edit" style="width:80px;">末4碼</th>
+       <th class="bg-edit field-pay" title="由商店確認後改變付款狀態">付款</th>
+       <th class="bg-edit field-tool">修改</th>
+   </tr>
+   <tr>
+       <td>{{ searchItem.value.edit_obj.order_name }}</td>
+       <td style="text-align:center">
+           {{ searchItem.value.edit_obj.s_hour }}:{{ searchItem.value.edit_obj.s_min }} ~ 
+           {{ searchItem.value.edit_obj.e_hour }}:{{ searchItem.value.edit_obj.e_min }}
+       </td>
+       <td style="text-align:center" title="預約分鐘數">{{ searchItem.value.edit_obj.during }}</td>
+       <td style="text-align:center" title="訂購價格">{{ searchItem.value.edit_obj.price }}</td>
+       <td style="text-align:center">
+           <p-calendar [(ngModel)]="searchItem.value.edit_obj.pay_day" dateFormat="yy-mm-dd" [yearNavigator]="true" yearRange="2020:2021" [locale]="locale"
+           placeholder="選擇付款日"  styleClass="calendar-input"></p-calendar>
+       </td>
+       <td style="text-align:center">
+           <input type="text" [(ngModel)]="searchItem.value.edit_obj.pay_number" class="form-control" placeholder="末4碼" title="付款帳號末4碼" maxlength="4">
+       </td>
+       <td style="text-align:center">
+           <i *ngIf="searchItem.value.edit_obj.is_pay==1" class="fas fa-check-circle" style="color:#1bd244" title="已付款"></i>
+           <i *ngIf="searchItem.value.edit_obj.is_pay!=1" class="fas fa-check-circle" style="color:#e0e0e0" title="未付款"></i>
+       </td>
+       <td style="text-align:center">
+           <button class="btn btn-sm btn-light" (click)="cancelOederEdit(searchItem)" style="margin-right: 8px;">取消</button>
+           <button class="btn btn-sm btn-success" (click)="checkEditOrder(searchItem)">確定</button>
+       </td>
+   </tr>
+</table>
+-->

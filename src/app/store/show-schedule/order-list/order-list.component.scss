@@ -1,0 +1,41 @@
+.fa-edit{ 
+    color: #6e8cfd;
+    cursor: pointer;
+}
+
+.time-field{width:32px}
+.bg-1{background:#ffec8d}
+.bg1{ background: #b4c7ff;}
+.bg2{ background :#e9e9e9 /*#b4ffc5*/ }
+.bgg{ background : transparent }
+.th-center th{text-align: center}
+.edit-item, .bg-edit{    
+    background: #1261a7;
+    color: #fff;
+}
+.form-check{
+    margin-bottom:0;
+    display:inline-block;
+    cursor: pointer;
+}
+.row{
+    padding:15px;
+}
+
+/* RWD 新增 */
+.screen-computer{
+    display: table-cell;
+}
+.screen-mobile{
+    display: none;
+}  
+
+@media screen  and (max-width:700px){
+ 
+    .screen-computer{
+        display: none;
+    }
+    .screen-mobile{
+        display: table-cell;
+    }   
+}
